@@ -81,7 +81,6 @@ const ExecutiveEdgeGamified: React.FC = () => {
   const [responseTime, setResponseTime] = useState<Record<string, number>>({});
   const [revisions, setRevisions] = useState(0);
   const [showResults, setShowResults] = useState(false);
-  const startTimeRef = useRef(Date.now());
   const questionStartRef = useRef(Date.now());
 
   // Token allocation categories
