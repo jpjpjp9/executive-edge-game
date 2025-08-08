@@ -1,10 +1,70 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronRight, AlertCircle, TrendingUp, Users, Target, Zap } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { ChevronRight, AlertCircle } from 'lucide-react';
 
-const ExecutiveEdgeGamified = () => {
-  const [stage, setStage] = useState('prime');
+// TypeScript interfaces
+interface Allocations {
+  speed: number;
+  quality: number;
+  rituals: number;
+  bench: number;
+  change: number;
+  clarity: number;
+  comp: number;
+  customer: number;
+}
+
+interface CollisionResponse {
+  text: string;
+  weights: {
+    trust: number;
+    governance: number;
+    alignment: number;
+  };
+}
+
+interface CollisionScenario {
+  scenario: string;
+  responses: CollisionResponse[];
+}
+
+interface TradeoffDilemma {
+  optionA: string;
+  optionB: string;
+}
+
+interface ExecutiveEdgeResults {
+  vectorMap: {
+    creativity: number;
+    community: number;
+    discipline: number;
+    advantage: number;
+  };
+  dimensions: {
+    culturalAlignment: number;
+    leadershipSuccession: number;
+    communication: number;
+    talentRetention: number;
+    decisionRights: number;
+    changeMgmt: number;
+    incentives: number;
+  };
+  outlierProbability: number;
+  responsePatterns: {
+    responseTime: Record<string, number>;
+    revisions: number;
+  };
+}
+
+declare global {
+  interface Window {
+    executiveEdgeResults: ExecutiveEdgeResults;
+  }
+}
+
+const ExecutiveEdgeGamified: React.FC = () => {
+  const [stage, setStage] = useState<'prime' | 'allocation' | 'collision' | 'tradeoff'>('prime');
   const [tokens, setTokens] = useState(100);
-  const [allocations, setAllocations] = useState({
+  const [allocations, setAllocations] = useState<Allocations>({
     speed: 0,
     quality: 0,
     rituals: 0,
@@ -14,11 +74,11 @@ const ExecutiveEdgeGamified = () => {
     comp: 0,
     customer: 0
   });
-  const [collisionResponses, setCollisionResponses] = useState([]);
-  const [tradeoffResponses, setTradeoffResponses] = useState([]);
+  const [collisionResponses, setCollisionResponses] = useState<number[]>([]);
+  const [tradeoffResponses, setTradeoffResponses] = useState<string[]>([]);
   const [currentCollision, setCurrentCollision] = useState(0);
   const [currentTradeoff, setCurrentTradeoff] = useState(0);
-  const [responseTime, setResponseTime] = useState({});
+  const [responseTime, setResponseTime] = useState<Record<string, number>>({});
   const [revisions, setRevisions] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const startTimeRef = useRef(Date.now());
@@ -26,18 +86,18 @@ const ExecutiveEdgeGamified = () => {
 
   // Token allocation categories
   const allocationCategories = [
-    { id: 'speed', label: 'Speed to ship', icon: '⚡' },
-    { id: 'quality', label: 'Quality bar', icon: '✨' },
-    { id: 'rituals', label: 'Cross-functional rituals', icon: '🤝' },
-    { id: 'bench', label: 'Bench depth', icon: '👥' },
-    { id: 'change', label: 'Change readiness', icon: '🔄' },
-    { id: 'clarity', label: 'Decision clarity', icon: '🎯' },
-    { id: 'comp', label: 'Comp philosophy integrity', icon: '💰' },
-    { id: 'customer', label: 'Customer intimacy', icon: '❤️' }
+    { id: 'speed' as keyof Allocations, label: 'Speed to ship', icon: '⚡' },
+    { id: 'quality' as keyof Allocations, label: 'Quality bar', icon: '✨' },
+    { id: 'rituals' as keyof Allocations, label: 'Cross-functional rituals', icon: '🤝' },
+    { id: 'bench' as keyof Allocations, label: 'Bench depth', icon: '👥' },
+    { id: 'change' as keyof Allocations, label: 'Change readiness', icon: '🔄' },
+    { id: 'clarity' as keyof Allocations, label: 'Decision clarity', icon: '🎯' },
+    { id: 'comp' as keyof Allocations, label: 'Comp philosophy integrity', icon: '💰' },
+    { id: 'customer' as keyof Allocations, label: 'Customer intimacy', icon: '❤️' }
   ];
 
   // Collision scenarios
-  const collisionScenarios = [
+  const collisionScenarios: CollisionScenario[] = [
     {
       scenario: "VP Engineering blocks a cross-org OKR due to unclear decision rights",
       responses: [
@@ -68,7 +128,7 @@ const ExecutiveEdgeGamified = () => {
   ];
 
   // Trade-off dilemmas
-  const tradeoffDilemmas = [
+  const tradeoffDilemmas: TradeoffDilemma[] = [
     { optionA: "Truth on time", optionB: "Harmony in public" },
     { optionA: "Ship fast", optionB: "Ship perfect" },
     { optionA: "Consensus decisions", optionB: "Clear ownership" },
@@ -81,7 +141,7 @@ const ExecutiveEdgeGamified = () => {
     { optionA: "Long-term vision", optionB: "Quick wins" }
   ];
 
-  const handleAllocationChange = (category, value) => {
+  const handleAllocationChange = (category: keyof Allocations, value: number) => {
     const oldValue = allocations[category];
     const difference = value - oldValue;
     
@@ -91,7 +151,7 @@ const ExecutiveEdgeGamified = () => {
     }
   };
 
-  const handleCollisionResponse = (responseIndex, isRevision = false) => {
+  const handleCollisionResponse = (responseIndex: number, isRevision = false) => {
     const timeTaken = Date.now() - questionStartRef.current;
     setResponseTime(prev => ({ ...prev, [`collision_${currentCollision}`]: timeTaken }));
     
@@ -112,7 +172,7 @@ const ExecutiveEdgeGamified = () => {
     }
   };
 
-  const handleTradeoff = (choice) => {
+  const handleTradeoff = (choice: string) => {
     const timeTaken = Date.now() - questionStartRef.current;
     setResponseTime(prev => ({ ...prev, [`tradeoff_${currentTradeoff}`]: timeTaken }));
     
@@ -165,7 +225,7 @@ const ExecutiveEdgeGamified = () => {
     setShowResults(true);
   };
 
-  const ResultsView = () => {
+  const ResultsView: React.FC = () => {
     const results = window.executiveEdgeResults;
     const { vectorMap, dimensions, outlierProbability } = results;
     
